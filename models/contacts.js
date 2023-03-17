@@ -45,7 +45,7 @@ const removeContact = async (contactId) => {
 
     return;
   } catch (error) {
-    console.log(error);
+    console.log("my error", error);
   }
 };
 
