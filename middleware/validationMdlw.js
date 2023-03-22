@@ -45,7 +45,20 @@ const putContactValidation = (req, res, next) => {
   next();
 };
 
+const favoriteContactValidation = (req, res, next) => {
+  const schema = Joi.object({
+    favorite: Joi.bool().required(),
+  });
+  const valodationResult = schema.validate(req.body);
+
+  if (valodationResult.error) {
+    return res.status(400).json({ message: "missing field favorite" });
+  }
+  next();
+};
+
 module.exports = {
   postContactValidation,
   putContactValidation,
+  favoriteContactValidation,
 };
