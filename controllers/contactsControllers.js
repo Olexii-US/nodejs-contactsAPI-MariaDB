@@ -4,11 +4,11 @@ const {
   getContactById,
   removeContact,
   updateContact,
+  updateStatusContact,
 } = require("../models/contacts");
 
 const getContacts = async (req, res, next) => {
   const contactsList = await listContacts();
-  // res.status(200).json(JSON.stringify(contactsList));
   res.status(200).json(contactsList);
 };
 
@@ -20,14 +20,9 @@ const getOneContactById = async (req, res, next) => {
 };
 
 const postContact = async (req, res, next) => {
-  const { id, name, email, phone } = await addContact(req.body);
+  const newContact = await addContact(req.body);
 
-  res.status(201).json({
-    id,
-    name,
-    email,
-    phone,
-  });
+  res.status(201).json(newContact);
 };
 
 const deleteContact = async (req, res, next) => {
@@ -45,10 +40,19 @@ const putContact = async (req, res, next) => {
   res.status(200).json(updatedContact);
 };
 
+const patchFavoriteContact = async (req, res, next) => {
+  const { id } = req.params;
+
+  const favoriteContact = await updateStatusContact(id, req.body);
+
+  res.status(200).json(favoriteContact);
+};
+
 module.exports = {
   getContacts,
   getOneContactById,
   postContact,
   deleteContact,
   putContact,
+  patchFavoriteContact,
 };

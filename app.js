@@ -1,6 +1,8 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 const contactsRouter = require("./routes/api/contacts");
 const { isContactIdExist } = require("./middleware/isIdExist");
@@ -8,6 +10,17 @@ const { isContactIdExist } = require("./middleware/isIdExist");
 const app = express();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
+
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then((connection) => {
+    console.log("Database connection successful");
+  })
+  .catch((err) => {
+    console.log(err);
+
+    process.exit(1);
+  });
 
 app.use(logger(formatsLogger));
 app.use(cors());

@@ -1,20 +1,8 @@
-const fs = require("fs").promises;
-const path = require("path");
-const uuid = require("uuid").v4;
-
-const contactsPath = path.resolve("./models/contacts.json");
-const getParsedContacts = async () => {
-  try {
-    const data = await fs.readFile(contactsPath);
-    return JSON.parse(data);
-  } catch (error) {
-    console.log(error);
-  }
-};
+const Contacts = require("./contactsModel");
 
 const listContacts = async () => {
   try {
-    return await getParsedContacts();
+    return await Contacts.find().select("-__v");
   } catch (error) {
     console.log(error);
   }
@@ -22,13 +10,7 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const contactsData = await getParsedContacts();
-
-    const filteredContact = contactsData.find(
-      (item) => item.id === contactId.toString()
-    );
-
-    return filteredContact;
+    return await Contacts.findById(contactId);
   } catch (error) {
     console.log(error);
   }
@@ -36,28 +18,17 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const contactsData = await getParsedContacts();
-
-    const filteredContact = contactsData.filter(
-      (item) => item.id !== contactId.toString()
-    );
-    await fs.writeFile(contactsPath, JSON.stringify(filteredContact));
+    await Contacts.findByIdAndDelete(contactId);
 
     return;
   } catch (error) {
-    console.log("my error", error);
+    console.log(error);
   }
 };
 
 const addContact = async (body) => {
   try {
-    const { name, email, phone } = body;
-    const contactsData = await getParsedContacts();
-
-    const newContact = { id: uuid(), name, email, phone };
-    contactsData.push(newContact);
-
-    await fs.writeFile(contactsPath, JSON.stringify(contactsData));
+    const newContact = await Contacts.create(body);
 
     return newContact;
   } catch (error) {
@@ -67,30 +38,27 @@ const addContact = async (body) => {
 
 const updateContact = async (contactId, body) => {
   try {
-    const { name, email, phone } = body;
-    const contactsData = await getParsedContacts();
-
-    const updatedContact = contactsData.find(
-      (item) => item.id === contactId.toString()
-    );
-
-    contactsData.forEach((item) => {
-      if (item.id === contactId.toString()) {
-        if (name) {
-          item.name = name;
-        }
-        if (email) {
-          item.email = email;
-        }
-        if (phone) {
-          item.phone = phone;
-        }
-      }
+    const updatedContact = await Contacts.findByIdAndUpdate(contactId, body, {
+      new: true,
     });
 
-    await fs.writeFile(contactsPath, JSON.stringify(contactsData));
-
     return updatedContact;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateStatusContact = async (contactId, body) => {
+  try {
+    const updatedFvrtContact = await Contacts.findByIdAndUpdate(
+      contactId,
+      body,
+      {
+        new: true,
+      }
+    );
+
+    return updatedFvrtContact;
   } catch (error) {
     console.log(error);
   }
@@ -102,4 +70,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 };
