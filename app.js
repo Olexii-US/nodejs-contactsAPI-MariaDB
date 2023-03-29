@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const contactsRouter = require("./routes/api/contacts");
 const { isContactIdExist } = require("./middleware/isIdExist");
+const authRouter = require("./routes/api/authRoutes");
 
 const app = express();
 
@@ -25,6 +26,8 @@ mongoose
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/users", authRouter);
 
 // middleWare
 // checks if contact exist

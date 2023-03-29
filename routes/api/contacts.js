@@ -9,6 +9,7 @@ const {
   patchFavoriteContact,
 } = require("../../controllers/contactsControllers");
 const { asyncWrapper } = require("../../helpers/tryCatchHelper");
+const { protectedWithToken } = require("../../middleware/isTokenValid");
 
 // middleware //
 const {
@@ -18,6 +19,8 @@ const {
 } = require("../../middleware/validationMdlw");
 
 const router = express.Router();
+
+router.use(protectedWithToken);
 
 router.get("/", asyncWrapper(getContacts));
 
