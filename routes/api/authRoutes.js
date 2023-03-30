@@ -5,6 +5,7 @@ const {
   loginUser,
   logoutUser,
   currentUser,
+  changeSubscription,
 } = require("../../controllers/authControlers");
 const { asyncWrapper } = require("../../helpers/tryCatchHelper");
 const {
@@ -25,5 +26,6 @@ authRouter.post("/login", postLoginValidation, asyncWrapper(loginUser));
 // only for login users
 authRouter.post("/logout", protectedWithToken, asyncWrapper(logoutUser));
 authRouter.get("/current", protectedWithToken, asyncWrapper(currentUser));
+authRouter.patch("/", protectedWithToken, asyncWrapper(changeSubscription));
 
 module.exports = authRouter;

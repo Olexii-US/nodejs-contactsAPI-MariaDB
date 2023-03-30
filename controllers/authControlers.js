@@ -7,6 +7,7 @@ const {
   loginUserFn,
   signTokenInBD,
   logoutUserFn,
+  changeSubsc,
 } = require("../utils/authUtiles");
 
 const registerUser = async (req, res, next) => {
@@ -61,9 +62,25 @@ const currentUser = async (req, res, next) => {
   res.status(200).json({ email, subscription });
 };
 
+//
+const changeSubscription = async (req, res, next) => {
+  const newSubscription = req.body;
+  const currentUser = req.user;
+
+  const updateUser = await changeSubsc(currentUser.id, newSubscription);
+
+  if (!updateUser)
+    return res.status(400).json({ message: "Subscription value is wrong" });
+
+  const { email, subscription } = updateUser;
+
+  res.status(200).json({ email, subscription });
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   currentUser,
+  changeSubscription,
 };

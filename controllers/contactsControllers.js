@@ -5,9 +5,19 @@ const {
   removeContact,
   updateContact,
   updateStatusContact,
+  queryContacts,
 } = require("../models/contacts");
 
 const getContacts = async (req, res, next) => {
+  const { page, limit, favorite } = req.query;
+
+  // if req.query
+  if (page || limit || favorite) {
+    const filteredContacts = await queryContacts(page, limit, favorite);
+
+    return res.status(200).json(filteredContacts);
+  }
+
   const contactsList = await listContacts();
   res.status(200).json(contactsList);
 };

@@ -16,13 +16,14 @@ const {
   postContactValidation,
   putContactValidation,
   favoriteContactValidation,
+  queryContactValidation,
 } = require("../../middleware/validationMdlw");
 
 const router = express.Router();
 
 router.use(protectedWithToken);
 
-router.get("/", asyncWrapper(getContacts));
+router.get("/", queryContactValidation, asyncWrapper(getContacts));
 
 router.get("/:id", asyncWrapper(getOneContactById));
 

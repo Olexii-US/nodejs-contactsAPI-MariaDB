@@ -51,9 +51,23 @@ const logoutUserFn = async (userId) => {
   }
 };
 
+const changeSubsc = async (userId, newSubscription) => {
+  try {
+    const user = await User.findByIdAndUpdate(userId, newSubscription, {
+      new: true,
+      runValidators: true,
+    });
+
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   createNewUser,
   loginUserFn,
   signTokenInBD,
   logoutUserFn,
+  changeSubsc,
 };

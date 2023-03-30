@@ -64,6 +64,30 @@ const updateStatusContact = async (contactId, body) => {
   }
 };
 
+// Pagination and filter contacts
+const queryContacts = async (page, limit, favorite) => {
+  try {
+    const paginationPage = +page || 1;
+    const paginationLimit = +limit || 20;
+    const skipCount = (paginationPage - 1) * paginationLimit;
+
+    const filteredContacts = await Contacts.find(favorite ? { favorite } : null)
+      .select("-__v")
+      .skip(skipCount)
+      .limit(paginationLimit);
+
+    const countPerPage = filteredContacts.length;
+    const total = await Contacts.count();
+    const totalFiltered = await Contacts.countDocuments(
+      favorite ? { favorite } : null
+    );
+
+    return { countPerPage, total, totalFiltered, filteredContacts };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   listContacts,
   getContactById,
@@ -71,4 +95,5 @@ module.exports = {
   addContact,
   updateContact,
   updateStatusContact,
+  queryContacts,
 };
