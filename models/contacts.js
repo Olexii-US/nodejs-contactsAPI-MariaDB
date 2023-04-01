@@ -1,24 +1,26 @@
 const Contacts = require("./contactsModel");
 
-const listContacts = async () => {
+const listContacts = async (owner) => {
   try {
-    return await Contacts.find().select("-__v");
+    return await Contacts.find({ owner }).select("-__v");
   } catch (error) {
     console.log(error);
   }
 };
 
-const getContactById = async (contactId) => {
+const getContactById = async (contactId, owner) => {
   try {
-    return await Contacts.findById(contactId);
+    return await Contacts.findOne({ _id: contactId, owner });
+    // return await Contacts.findById(contactId);
   } catch (error) {
     console.log(error);
   }
 };
 
-const removeContact = async (contactId) => {
+const removeContact = async (contactId, owner) => {
   try {
-    await Contacts.findByIdAndDelete(contactId);
+    await Contacts.findOneAndDelete({ _id: contactId, owner });
+    // await Contacts.findByIdAndDelete(contactId);
 
     return;
   } catch (error) {
@@ -26,9 +28,9 @@ const removeContact = async (contactId) => {
   }
 };
 
-const addContact = async (body) => {
+const addContact = async (body, owner) => {
   try {
-    const newContact = await Contacts.create(body);
+    const newContact = await Contacts.create({ ...body, owner });
 
     return newContact;
   } catch (error) {
@@ -36,11 +38,19 @@ const addContact = async (body) => {
   }
 };
 
-const updateContact = async (contactId, body) => {
+const updateContact = async (contactId, body, owner) => {
   try {
-    const updatedContact = await Contacts.findByIdAndUpdate(contactId, body, {
-      new: true,
-    });
+    const updatedContact = await Contacts.findOneAndUpdate(
+      { _id: contactId, owner },
+      body,
+      {
+        new: true,
+      }
+    );
+    // Логіка без прив'язки до юзерів
+    // const updatedContact = await Contacts.findByIdAndUpdate(contactId, body, {
+    //   new: true,
+    // });
 
     return updatedContact;
   } catch (error) {
@@ -48,15 +58,19 @@ const updateContact = async (contactId, body) => {
   }
 };
 
-const updateStatusContact = async (contactId, body) => {
+const updateStatusContact = async (contactId, body, owner) => {
   try {
-    const updatedFvrtContact = await Contacts.findByIdAndUpdate(
-      contactId,
+    const updatedFvrtContact = await Contacts.findOneAndUpdate(
+      { _id: contactId, owner },
       body,
       {
         new: true,
       }
     );
+    // const updatedFvrtContact = await Contacts.findByIdAndUpdate(
+    //   contactId,
+    //   body,   { new: true }
+    // );
 
     return updatedFvrtContact;
   } catch (error) {
@@ -65,22 +79,22 @@ const updateStatusContact = async (contactId, body) => {
 };
 
 // Pagination and filter contacts
-const queryContacts = async (page, limit, favorite) => {
+const queryContacts = async (owner, page, limit, favorite) => {
   try {
     const paginationPage = +page || 1;
     const paginationLimit = +limit || 20;
     const skipCount = (paginationPage - 1) * paginationLimit;
 
-    const filteredContacts = await Contacts.find(favorite ? { favorite } : null)
+    const query = favorite ? { owner, favorite } : { owner };
+
+    const filteredContacts = await Contacts.find(query)
       .select("-__v")
       .skip(skipCount)
       .limit(paginationLimit);
 
     const countPerPage = filteredContacts.length;
     const total = await Contacts.count();
-    const totalFiltered = await Contacts.countDocuments(
-      favorite ? { favorite } : null
-    );
+    const totalFiltered = await Contacts.countDocuments(query);
 
     return { countPerPage, total, totalFiltered, filteredContacts };
   } catch (error) {

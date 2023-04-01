@@ -19,6 +19,7 @@ const contactsSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     // type: Schema.Types.ObjectId,
     ref: "users",
+    required: [true, "Todo must have an owner.."],
   },
 });
 

@@ -36,7 +36,9 @@ const postLoginValidation = (req, res, next) => {
   const valodationResult = schema.validate(req.body);
 
   if (valodationResult.error) {
-    return res.status(400).json({ message: "Invalid user email or password" });
+    const msg = valodationResult.error.details[0].message;
+    return res.status(400).json({ message: msg });
+    // return res.status(400).json({ message: "Invalid user email or password" });
   }
 
   next();
