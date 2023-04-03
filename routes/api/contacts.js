@@ -9,17 +9,21 @@ const {
   patchFavoriteContact,
 } = require("../../controllers/contactsControllers");
 const { asyncWrapper } = require("../../helpers/tryCatchHelper");
+const { protectedWithToken } = require("../../middleware/isTokenValid");
 
 // middleware //
 const {
   postContactValidation,
   putContactValidation,
   favoriteContactValidation,
+  queryContactValidation,
 } = require("../../middleware/validationMdlw");
 
 const router = express.Router();
 
-router.get("/", asyncWrapper(getContacts));
+router.use(protectedWithToken);
+
+router.get("/", queryContactValidation, asyncWrapper(getContacts));
 
 router.get("/:id", asyncWrapper(getOneContactById));
 

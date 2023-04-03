@@ -57,8 +57,23 @@ const favoriteContactValidation = (req, res, next) => {
   next();
 };
 
+const queryContactValidation = (req, res, next) => {
+  const schema = Joi.object({
+    page: Joi.number().integer().positive(),
+    limit: Joi.number().integer().positive().less(51),
+    favorite: Joi.bool(),
+  });
+  const valodationResult = schema.validate(req.query);
+
+  if (valodationResult.error) {
+    return res.status(400).json({ message: "Wrong query field" });
+  }
+  next();
+};
+
 module.exports = {
   postContactValidation,
   putContactValidation,
   favoriteContactValidation,
+  queryContactValidation,
 };
