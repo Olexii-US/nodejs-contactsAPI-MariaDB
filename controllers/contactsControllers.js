@@ -6,7 +6,7 @@ const {
   updateContact,
   updateStatusContact,
   queryContacts,
-} = require("../models/contacts");
+} = require("../utils/contacts");
 
 const getContacts = async (req, res, next) => {
   const { _id } = req.user;
