@@ -68,7 +68,6 @@ const patchAvatarValidation = (req, res, next) => {
 
   if (valodationResult.error) {
     const msg = valodationResult.error.details[0].message;
-    console.log("JOIII BAD", msg);
     return res.status(400).json({ message: msg });
   }
 

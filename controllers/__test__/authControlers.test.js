@@ -3,7 +3,6 @@ const appServer = require("../../server");
 
 describe("Post /user/login", () => {
   // afterAll(async () => {
-  //   console.log("AfterAll");
   //   await appServer.close();
   // });
 

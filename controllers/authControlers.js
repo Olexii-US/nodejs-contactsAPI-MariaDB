@@ -112,8 +112,11 @@ const changeAvatar = async (req, res, next) => {
   const { file, user } = req;
 
   if (file) {
+    const tmpPath = `./tmp`;
+
     user.avatarURL = await ImageService.save(
-      file,
+      tmpPath,
+      user.id,
       250,
       250,
       "avatars",
@@ -124,6 +127,25 @@ const changeAvatar = async (req, res, next) => {
   const updatedUser = await user.save();
   res.status(200).json({ avatarURL: updatedUser.avatarURL });
 };
+
+// ChangeAvatar without /tmp
+// Avatar is saving on memoryStorage and Jimp saves into /public
+// const changeAvatar = async (req, res, next) => {
+//   const { file, user } = req;
+
+//   if (file) {
+//     user.avatarURL = await ImageService.save(
+//       file,
+//       250,
+//       250,
+//       "avatars",
+//       `userId_${user.id}`
+//     );
+//   }
+
+//   const updatedUser = await user.save();
+//   res.status(200).json({ avatarURL: updatedUser.avatarURL });
+// };
 
 module.exports = {
   registerUser,
