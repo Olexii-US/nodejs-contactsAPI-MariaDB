@@ -28,8 +28,8 @@ class ImageService {
 
     await fsExt.ensureDir(filePath);
 
-    const imgWidth = width || 250;
-    const imgHeight = height || 250;
+    const imgWidth = width || 300;
+    const imgHeight = height || 300;
 
     await Jimp.read(file.buffer)
       .then((img) => {

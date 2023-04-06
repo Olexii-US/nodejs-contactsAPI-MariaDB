@@ -114,24 +114,15 @@ const changeAvatar = async (req, res, next) => {
   if (file) {
     user.avatarURL = await ImageService.save(
       file,
-      444,
-      444,
+      250,
+      250,
       "avatars",
       `userId_${user.id}`
     );
   }
 
   const updatedUser = await user.save();
-  // res.status(200).json(updatedUser.avatarURL);
   res.status(200).json({ avatarURL: updatedUser.avatarURL });
-
-  // const newSubscription = req.body;
-  // const currentUser = req.user;
-  // const updateUser = await changeSubsc(currentUser.id, newSubscription);
-  // if (!updateUser)
-  //   return res.status(400).json({ message: "Subscription value is wrong" });
-  // const { email, subscription } = updateUser;
-  // res.status(200).json({ avatarURL });
 };
 
 module.exports = {
