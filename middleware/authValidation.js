@@ -44,7 +44,40 @@ const postLoginValidation = (req, res, next) => {
   next();
 };
 
+const patchSubscriptionValidation = (req, res, next) => {
+  const schema = Joi.object({
+    subscription: Joi.string().valid("starter", "pro", "business"),
+  });
+
+  const valodationResult = schema.validate(req.body);
+
+  if (valodationResult.error) {
+    const msg = valodationResult.error.details[0].message;
+    return res.status(400).json({ message: msg });
+  }
+
+  next();
+};
+
+const patchAvatarValidation = (req, res, next) => {
+  const schema = Joi.object({
+    avatarURL: Joi.string().uri(),
+  });
+
+  const valodationResult = schema.validate(req.body);
+
+  if (valodationResult.error) {
+    const msg = valodationResult.error.details[0].message;
+    console.log("JOIII BAD", msg);
+    return res.status(400).json({ message: msg });
+  }
+
+  next();
+};
+
 module.exports = {
   postRegisterValidation,
   postLoginValidation,
+  patchSubscriptionValidation,
+  patchAvatarValidation,
 };

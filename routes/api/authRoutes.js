@@ -6,13 +6,17 @@ const {
   logoutUser,
   currentUser,
   changeSubscription,
+  changeAvatar,
 } = require("../../controllers/authControlers");
 const { asyncWrapper } = require("../../helpers/tryCatchHelper");
 const {
   postRegisterValidation,
   postLoginValidation,
+  patchSubscriptionValidation,
+  patchAvatarValidation,
 } = require("../../middleware/authValidation");
 const { protectedWithToken } = require("../../middleware/isTokenValid");
+const { uploadUserAvatar } = require("../../middleware/userUpdate");
 
 const authRouter = express.Router();
 
@@ -26,6 +30,19 @@ authRouter.post("/login", postLoginValidation, asyncWrapper(loginUser));
 // only for login users
 authRouter.post("/logout", protectedWithToken, asyncWrapper(logoutUser));
 authRouter.get("/current", protectedWithToken, asyncWrapper(currentUser));
-authRouter.patch("/", protectedWithToken, asyncWrapper(changeSubscription));
+authRouter.patch(
+  "/",
+  patchSubscriptionValidation,
+  protectedWithToken,
+  asyncWrapper(changeSubscription)
+);
+
+authRouter.patch(
+  "/avatars",
+  patchAvatarValidation,
+  protectedWithToken,
+  uploadUserAvatar,
+  asyncWrapper(changeAvatar)
+);
 
 module.exports = authRouter;
