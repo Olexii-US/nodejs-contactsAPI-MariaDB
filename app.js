@@ -27,6 +27,9 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
+// Static folder connect
+app.use(express.static("public"));
+
 app.use("/api/users", authRouter);
 
 // middleWare

@@ -22,8 +22,6 @@ const getContacts = async (req, res, next) => {
 
   // if No req.query
   const contactsList = await listContacts(_id);
-  console.log("contactsList", contactsList);
-
   res.status(200).json(contactsList);
 };
 
