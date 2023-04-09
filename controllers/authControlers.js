@@ -119,8 +119,8 @@ const changeAvatar = async (req, res, next) => {
       user.id,
       250,
       250,
-      "avatars",
-      `userId_${user.id}`
+      "avatars"
+      // `userId_${user.id}`
     );
   }
 
