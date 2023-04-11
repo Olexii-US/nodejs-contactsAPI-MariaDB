@@ -3,6 +3,7 @@ const express = require("express");
 const {
   registerUser,
   loginUser,
+  verifyUser,
   logoutUser,
   currentUser,
   changeSubscription,
@@ -26,6 +27,7 @@ authRouter.post(
   asyncWrapper(registerUser)
 );
 authRouter.post("/login", postLoginValidation, asyncWrapper(loginUser));
+authRouter.get("/verify/:verificationToken", asyncWrapper(verifyUser));
 
 // only for login users
 authRouter.post("/logout", protectedWithToken, asyncWrapper(logoutUser));

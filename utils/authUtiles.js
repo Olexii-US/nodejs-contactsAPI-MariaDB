@@ -1,11 +1,42 @@
+const uuid = require("uuid").v4;
 const User = require("../models/userModel");
+const sendMail = require("./sendEmail");
+const { DEV_URL } = process.env;
 
 const createNewUser = async (body) => {
   try {
-    const newUser = await User.create(body);
+    const verifyCode = uuid();
+    const newUser = await User.create({
+      ...body,
+      verificationToken: verifyCode,
+    });
+
     newUser.password = undefined;
 
+    const verifyEmail = {
+      to: body.email,
+      subject: "Email verification",
+      text: `Please verify your email address: ${DEV_URL}/api/users/verify/${verifyCode}`,
+      html: `<strong>Please verify your email address:</strong><a target="_blank" href="${DEV_URL}/api/users/verify/${verifyCode}">`,
+    };
+    await sendMail(verifyEmail);
+
     return newUser;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const verifyUserFn = async (verificationToken) => {
+  try {
+    const user = await User.findOne({ verificationToken });
+
+    if (!user) return;
+
+    return await User.findByIdAndUpdate(user._id, {
+      verify: true,
+      verificationToken: null,
+    });
   } catch (error) {
     console.log(error);
   }
@@ -66,6 +97,7 @@ const changeSubsc = async (userId, newSubscription) => {
 
 module.exports = {
   createNewUser,
+  verifyUserFn,
   loginUserFn,
   signTokenInBD,
   logoutUserFn,
