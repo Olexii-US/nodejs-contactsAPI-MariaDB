@@ -23,6 +23,25 @@ const postRegisterValidation = (req, res, next) => {
   next();
 };
 
+const postVerifyValidation = (req, res, next) => {
+  const schema = Joi.object({
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+      })
+      .required(),
+  });
+
+  const valodationResult = schema.validate(req.body);
+
+  if (valodationResult.error) {
+    const msg = valodationResult.error.details[0].message;
+    return res.status(400).json({ message: msg });
+  }
+
+  next();
+};
+
 const postLoginValidation = (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string()
@@ -76,6 +95,7 @@ const patchAvatarValidation = (req, res, next) => {
 
 module.exports = {
   postRegisterValidation,
+  postVerifyValidation,
   postLoginValidation,
   patchSubscriptionValidation,
   patchAvatarValidation,

@@ -17,7 +17,7 @@ const createNewUser = async (body) => {
       to: body.email,
       subject: "Email verification",
       text: `Please verify your email address: ${DEV_URL}/api/users/verify/${verifyCode}`,
-      html: `<strong>Please verify your email address:</strong><a target="_blank" href="${DEV_URL}/api/users/verify/${verifyCode}">`,
+      html: `<strong>Please verify your email address:</strong><a target="_blank" href="${DEV_URL}/api/users/verify/${verifyCode}">Click here</a>`,
     };
     await sendMail(verifyEmail);
 
@@ -37,6 +37,33 @@ const verifyUserFn = async (verificationToken) => {
       verify: true,
       verificationToken: null,
     });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const findEmail = async (body) => {
+  try {
+    const { email } = body;
+    const user = await User.findOne({ email });
+
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
+const resendVerifyEmail = async (user) => {
+  try {
+    const { email, verificationToken } = user;
+
+    const verifyEmail = {
+      to: email,
+      subject: "Email verification",
+      text: `Please verify your email address: ${DEV_URL}/api/users/verify/${verificationToken}`,
+      html: `<strong>Please verify your email address:</strong><a target="_blank" href="${DEV_URL}/api/users/verify/${verificationToken}">Click here</a>`,
+    };
+
+    return await sendMail(verifyEmail);
   } catch (error) {
     console.log(error);
   }
@@ -98,6 +125,8 @@ const changeSubsc = async (userId, newSubscription) => {
 module.exports = {
   createNewUser,
   verifyUserFn,
+  findEmail,
+  resendVerifyEmail,
   loginUserFn,
   signTokenInBD,
   logoutUserFn,
