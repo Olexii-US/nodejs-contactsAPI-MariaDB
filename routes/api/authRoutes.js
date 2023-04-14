@@ -3,6 +3,8 @@ const express = require("express");
 const {
   registerUser,
   loginUser,
+  verifyUser,
+  resendVerifyForUser,
   logoutUser,
   currentUser,
   changeSubscription,
@@ -11,6 +13,7 @@ const {
 const { asyncWrapper } = require("../../helpers/tryCatchHelper");
 const {
   postRegisterValidation,
+  postVerifyValidation,
   postLoginValidation,
   patchSubscriptionValidation,
   patchAvatarValidation,
@@ -26,6 +29,12 @@ authRouter.post(
   asyncWrapper(registerUser)
 );
 authRouter.post("/login", postLoginValidation, asyncWrapper(loginUser));
+authRouter.get("/verify/:verificationToken", asyncWrapper(verifyUser));
+authRouter.post(
+  "/verify",
+  postVerifyValidation,
+  asyncWrapper(resendVerifyForUser)
+);
 
 // only for login users
 authRouter.post("/logout", protectedWithToken, asyncWrapper(logoutUser));

@@ -3,6 +3,9 @@ const { signToken } = require("../services/getToken");
 const { ImageService } = require("../services/imageService");
 const {
   createNewUser,
+  verifyUserFn,
+  findEmail,
+  resendVerifyEmail,
   loginUserFn,
   signTokenInBD,
   logoutUserFn,
@@ -36,6 +39,34 @@ const registerUser = async (req, res, next) => {
 //   res.status(201).json({ user: { email, subscription } });
 // };
 
+const verifyUser = async (req, res, next) => {
+  const { verificationToken } = req.params;
+
+  const user = await verifyUserFn(verificationToken);
+
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  res.status(200).json({
+    message: "Verification successful",
+  });
+};
+
+const resendVerifyForUser = async (req, res, next) => {
+  const user = await findEmail(req.body);
+
+  if (!user) return res.status(401).json({ message: "User not found" });
+  if (user.verify)
+    return res.status(400).json({
+      message: "Verification has already been passed",
+    });
+
+  resendVerifyEmail(user);
+
+  res.status(200).json({
+    message: "Verification email sent",
+  });
+};
+
 const loginUser = async (req, res, next) => {
   const { password } = req.body;
 
@@ -43,6 +74,9 @@ const loginUser = async (req, res, next) => {
 
   if (!user)
     return res.status(401).json({ message: "Email or password is wrong" });
+
+  if (!user.verify)
+    return res.status(401).json({ message: "Email is not verified" });
 
   const passwordIsValid = await user.checkPassword(password, user.password);
 
@@ -150,6 +184,8 @@ const changeAvatar = async (req, res, next) => {
 module.exports = {
   registerUser,
   loginUser,
+  verifyUser,
+  resendVerifyForUser,
   logoutUser,
   currentUser,
   changeSubscription,
