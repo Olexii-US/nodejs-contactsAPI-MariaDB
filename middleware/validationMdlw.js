@@ -2,7 +2,7 @@ const Joi = require("joi");
 
 const postContactValidation = (req, res, next) => {
   const schema = Joi.object({
-    name: Joi.string().min(3).max(30).required(),
+    name: Joi.string().min(3).max(40).required(),
     email: Joi.string()
       .email({
         minDomainSegments: 2,
@@ -11,7 +11,7 @@ const postContactValidation = (req, res, next) => {
       .required(),
     phone: Joi.string()
       .min(3)
-      .max(15)
+      .max(20)
       .pattern(/^[0-9-()+ ]+$/)
       .required(),
   });
@@ -28,13 +28,13 @@ const postContactValidation = (req, res, next) => {
 
 const putContactValidation = (req, res, next) => {
   const schema = Joi.object({
-    name: Joi.string().min(3).max(30),
+    name: Joi.string().min(3).max(40),
     email: Joi.string().email({
       minDomainSegments: 2,
     }),
     phone: Joi.string()
       .min(3)
-      .max(15)
+      .max(20)
       .pattern(/^[0-9-()+ ]+$/),
   }).min(1);
   const valodationResult = schema.validate(req.body);
