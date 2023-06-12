@@ -12,42 +12,25 @@ const {
   changeSubsc,
 } = require("../utils/authUtiles");
 
-// const registerUser = async (req, res, next) => {
-//   const userExists = await User.exists({ email: req.body.email });
+const pool = require("../dbConnection");
 
-//   if (userExists) return res.status(409).json({ message: "Email in use" });
-
-//   const { email, subscription } = await createNewUser(req.body);
-
-//   res.status(201).json({ user: { email, subscription } });
-// };
-
+// --------------on MariaDB---------------
 const registerUser = async (req, res, next) => {
-  // const userExists = await User.exists({ email: req.body.email });
+  const conn = await pool.getConnection();
+  const userExists = await conn.query(
+    `SELECT * FROM users WHERE email = '${req.body.email}'`
+  );
+  conn.close();
+  console.log("userExists", userExists.length);
 
-  // if (userExists) return res.status(409).json({ message: "Email in use" });
+  if (userExists.length !== 0)
+    return res.status(409).json({ message: "Email in use" });
 
   const { email, subscription } = await createNewUser(req.body);
 
   res.status(201).json({ user: { email, subscription } });
 };
-
-// registerUser without preSave midelware
-// const registerUser = async (req, res, next) => {
-//   const userExists = await User.exists({ email: req.body.email });
-//   const { password, ...restData } = req.body;
-
-//   if (userExists) return res.status(409).json({ message: "Email in use" });
-
-//   const salt = await bcrypt.genSalt(10);
-//   const hashedPassword = await bcrypt.hash(password, salt);
-//   const { email, subscription } = await createNewUser({
-//     ...restData,
-//     password: hashedPassword,
-//   });
-
-//   res.status(201).json({ user: { email, subscription } });
-// };
+// --------------End---------------
 
 const verifyUser = async (req, res, next) => {
   const { verificationToken } = req.params;

@@ -2,19 +2,21 @@ const uuid = require("uuid").v4;
 const User = require("../models/userModel");
 const sendMail = require("./sendEmail");
 const { DEV_URL } = process.env;
-
-// -------------
 const pool = require("../dbConnection");
-// ------------------
+const bcrypt = require("bcrypt");
 
+// --------------on MariaDB---------------
 const createNewUser = async (body) => {
   try {
     const verifyCode = uuid();
+    // for hashedPassword;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(body.password, salt);
 
     const conn = await pool.getConnection();
 
     await conn.query(
-      `INSERT INTO users(password, email, verificationToken) VALUES('${body.password}', '${body.email}', '${verifyCode}')`
+      `INSERT INTO users(password, email, verificationToken) VALUES('${hashedPassword}', '${body.email}', '${verifyCode}')`
     );
 
     const newUser = await conn.query(
@@ -37,30 +39,7 @@ const createNewUser = async (body) => {
     console.log(error);
   }
 };
-
-// const createNewUser = async (body) => {
-//   try {
-//     const verifyCode = uuid();
-//     const newUser = await User.create({
-//       ...body,
-//       verificationToken: verifyCode,
-//     });
-
-//     newUser.password = undefined;
-
-//     const verifyEmail = {
-//       to: body.email,
-//       subject: "Email verification",
-//       text: `Please verify your email address: ${DEV_URL}/api/users/verify/${verifyCode}`,
-//       html: `<strong>Please verify your email address:</strong><a target="_blank" href="${DEV_URL}/api/users/verify/${verifyCode}">Click here</a>`,
-//     };
-//     await sendMail(verifyEmail);
-
-//     return newUser;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+// --------------End---------------
 
 const verifyUserFn = async (verificationToken) => {
   try {
