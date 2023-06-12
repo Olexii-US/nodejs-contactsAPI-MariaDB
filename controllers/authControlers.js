@@ -12,10 +12,20 @@ const {
   changeSubsc,
 } = require("../utils/authUtiles");
 
-const registerUser = async (req, res, next) => {
-  const userExists = await User.exists({ email: req.body.email });
+// const registerUser = async (req, res, next) => {
+//   const userExists = await User.exists({ email: req.body.email });
 
-  if (userExists) return res.status(409).json({ message: "Email in use" });
+//   if (userExists) return res.status(409).json({ message: "Email in use" });
+
+//   const { email, subscription } = await createNewUser(req.body);
+
+//   res.status(201).json({ user: { email, subscription } });
+// };
+
+const registerUser = async (req, res, next) => {
+  // const userExists = await User.exists({ email: req.body.email });
+
+  // if (userExists) return res.status(409).json({ message: "Email in use" });
 
   const { email, subscription } = await createNewUser(req.body);
 

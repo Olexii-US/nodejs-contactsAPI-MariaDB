@@ -3,15 +3,26 @@ const User = require("../models/userModel");
 const sendMail = require("./sendEmail");
 const { DEV_URL } = process.env;
 
+// -------------
+const pool = require("../dbConnection");
+// ------------------
+
 const createNewUser = async (body) => {
   try {
     const verifyCode = uuid();
-    const newUser = await User.create({
-      ...body,
-      verificationToken: verifyCode,
-    });
 
-    newUser.password = undefined;
+    const conn = await pool.getConnection();
+
+    await conn.query(
+      `INSERT INTO users(password, email, verificationToken) VALUES('${body.password}', '${body.email}', '${verifyCode}')`
+    );
+
+    const newUser = await conn.query(
+      `SELECT * FROM users WHERE email = '${body.email}'`
+    );
+    conn.close();
+
+    newUser[0].password = undefined;
 
     const verifyEmail = {
       to: body.email,
@@ -21,11 +32,35 @@ const createNewUser = async (body) => {
     };
     await sendMail(verifyEmail);
 
-    return newUser;
+    return newUser[0];
   } catch (error) {
     console.log(error);
   }
 };
+
+// const createNewUser = async (body) => {
+//   try {
+//     const verifyCode = uuid();
+//     const newUser = await User.create({
+//       ...body,
+//       verificationToken: verifyCode,
+//     });
+
+//     newUser.password = undefined;
+
+//     const verifyEmail = {
+//       to: body.email,
+//       subject: "Email verification",
+//       text: `Please verify your email address: ${DEV_URL}/api/users/verify/${verifyCode}`,
+//       html: `<strong>Please verify your email address:</strong><a target="_blank" href="${DEV_URL}/api/users/verify/${verifyCode}">Click here</a>`,
+//     };
+//     await sendMail(verifyEmail);
+
+//     return newUser;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 const verifyUserFn = async (verificationToken) => {
   try {
