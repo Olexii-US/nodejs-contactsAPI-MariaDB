@@ -39,18 +39,24 @@ const createNewUser = async (body) => {
     console.log(error);
   }
 };
-// --------------End---------------
 
 const verifyUserFn = async (verificationToken) => {
   try {
-    const user = await User.findOne({ verificationToken });
+    const conn = await pool.getConnection();
 
-    if (!user) return;
+    const user = await conn.query(
+      `SELECT * FROM users WHERE verificationToken='${verificationToken}'`
+    );
+    if (user.length === 0) return false;
 
-    return await User.findByIdAndUpdate(user._id, {
-      verify: true,
-      verificationToken: null,
-    });
+    await conn.query(
+      `UPDATE users
+      SET verify = true, verificationToken = null
+      WHERE verificationToken='${verificationToken}'`
+    );
+
+    conn.close();
+    return true;
   } catch (error) {
     console.log(error);
   }
@@ -59,13 +65,17 @@ const verifyUserFn = async (verificationToken) => {
 const findEmail = async (body) => {
   try {
     const { email } = body;
-    const user = await User.findOne({ email });
+    const conn = await pool.getConnection();
 
-    return user;
+    const user = await conn.query(`SELECT * FROM users WHERE email='${email}'`);
+    conn.close();
+
+    return user[0];
   } catch (error) {
     console.log(error);
   }
 };
+
 const resendVerifyEmail = async (user) => {
   try {
     const { email, verificationToken } = user;
@@ -86,42 +96,71 @@ const resendVerifyEmail = async (user) => {
 const loginUserFn = async (body) => {
   try {
     const { email } = body;
-    const user = await User.findOne({ email }).select("+password");
+    const conn = await pool.getConnection();
 
-    return user;
+    const user = await conn.query(
+      `SELECT * FROM users WHERE email = '${email}'`
+    );
+    conn.close();
+
+    return user[0];
   } catch (error) {
     console.log(error);
   }
 };
 
-const signTokenInBD = async (contactId, updateBody) => {
+const signTokenInBD = async (contactId, token) => {
   try {
-    const updatedContact = await User.findByIdAndUpdate(contactId, updateBody, {
-      new: true,
-    });
+    const conn = await pool.getConnection();
 
-    return updatedContact;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const logoutUserFn = async (userId) => {
-  try {
-    const logoutUser = await User.findByIdAndUpdate(
-      userId,
-      { $unset: { token: 1 } },
-      // { token: undefined },
-      {
-        new: true,
-      }
+    await conn.query(
+      `UPDATE users
+      SET token='${token}'
+      WHERE id=${contactId}`
     );
 
-    return logoutUser;
+    const updatedContact = await conn.query(
+      `SELECT email, subscription FROM users WHERE id = ${contactId}`
+    );
+    conn.close();
+
+    return updatedContact[0];
   } catch (error) {
     console.log(error);
   }
 };
+
+const checkPassword = (candidate, hash) => bcrypt.compare(candidate, hash);
+
+// перевірити!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const logoutUserFn = async (userId) => {
+  try {
+    const conn = await pool.getConnection();
+
+    await conn.query(
+      `UPDATE users
+      SET token = null
+      WHERE id=${userId}`
+    );
+    conn.close();
+    return;
+
+    //
+    // const logoutUser = await User.findByIdAndUpdate(
+    //   userId,
+    //   { $unset: { token: 1 } },
+    //   // { token: undefined },
+    //   {
+    //     new: true,
+    //   }
+    // );
+
+    // return logoutUser;
+  } catch (error) {
+    console.log(error);
+  }
+};
+// --------------End---------------
 
 const changeSubsc = async (userId, newSubscription) => {
   try {
@@ -145,4 +184,5 @@ module.exports = {
   signTokenInBD,
   logoutUserFn,
   changeSubsc,
+  checkPassword,
 };

@@ -51,8 +51,8 @@ userSchema.pre("save", async function (next) {
 });
 
 // Custom method checkPassword
-userSchema.methods.checkPassword = (candidate, hash) =>
-  bcrypt.compare(candidate, hash);
+// userSchema.methods.checkPassword = (candidate, hash) =>
+//   bcrypt.compare(candidate, hash);
 
 const User = mongoose.model("users", userSchema);
 

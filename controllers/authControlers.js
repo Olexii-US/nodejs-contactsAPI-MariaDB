@@ -1,4 +1,4 @@
-const User = require("../models/userModel");
+// const User = require("../models/userModel");
 const { signToken } = require("../services/getToken");
 const { ImageService } = require("../services/imageService");
 const {
@@ -10,6 +10,7 @@ const {
   signTokenInBD,
   logoutUserFn,
   changeSubsc,
+  checkPassword,
 } = require("../utils/authUtiles");
 
 const pool = require("../dbConnection");
@@ -21,7 +22,6 @@ const registerUser = async (req, res, next) => {
     `SELECT * FROM users WHERE email = '${req.body.email}'`
   );
   conn.close();
-  console.log("userExists", userExists.length);
 
   if (userExists.length !== 0)
     return res.status(409).json({ message: "Email in use" });
@@ -30,14 +30,14 @@ const registerUser = async (req, res, next) => {
 
   res.status(201).json({ user: { email, subscription } });
 };
-// --------------End---------------
 
 const verifyUser = async (req, res, next) => {
   const { verificationToken } = req.params;
 
-  const user = await verifyUserFn(verificationToken);
+  const isUserVerifyed = await verifyUserFn(verificationToken);
 
-  if (!user) return res.status(404).json({ message: "User not found" });
+  if (!isUserVerifyed)
+    return res.status(404).json({ message: "User not found" });
 
   res.status(200).json({
     message: "Verification successful",
@@ -71,7 +71,7 @@ const loginUser = async (req, res, next) => {
   if (!user.verify)
     return res.status(401).json({ message: "Email is not verified" });
 
-  const passwordIsValid = await user.checkPassword(password, user.password);
+  const passwordIsValid = await checkPassword(password, user.password);
 
   if (!passwordIsValid)
     return res.status(401).json({ message: "Email or password is wrong" });
@@ -79,33 +79,13 @@ const loginUser = async (req, res, next) => {
   user.password = undefined;
 
   const token = signToken(user.id);
-  const { email, subscription } = await signTokenInBD(user.id, { user, token });
+
+  const { email, subscription } = await signTokenInBD(user.id, token);
 
   res.status(200).json({ token, user: { email, subscription } });
 };
 
-// loginUser without preSave midelware
-// const loginUser = async (req, res, next) => {
-//   const { password } = req.body;
-
-//   const user = await loginUserFn(req.body);
-
-//   if (!user)
-//     return res.status(401).json({ message: "Email or password is wrong" });
-
-//   const passwordIsValid = await bcrypt.compare(password, user.password);
-
-//   if (!passwordIsValid)
-//     return res.status(401).json({ message: "Email or password is wrong" });
-
-//   user.password = undefined;
-
-//   const token = signToken(user.id);
-//   const { email, subscription } = await signTokenInBD(user.id, { user, token });
-
-//   res.status(200).json({ token, user: { email, subscription } });
-// };
-
+// перевірити!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 const logoutUser = async (req, res, next) => {
   const currentUser = req.user;
 
@@ -113,6 +93,7 @@ const logoutUser = async (req, res, next) => {
 
   res.sendStatus(204);
 };
+// --------------End---------------
 
 const currentUser = async (req, res, next) => {
   const { email, subscription } = req.user;
