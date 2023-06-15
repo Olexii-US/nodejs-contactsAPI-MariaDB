@@ -85,7 +85,6 @@ const loginUser = async (req, res, next) => {
   res.status(200).json({ token, user: { email, subscription } });
 };
 
-// перевірити!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 const logoutUser = async (req, res, next) => {
   const currentUser = req.user;
 
@@ -93,7 +92,6 @@ const logoutUser = async (req, res, next) => {
 
   res.sendStatus(204);
 };
-// --------------End---------------
 
 const currentUser = async (req, res, next) => {
   const { email, subscription } = req.user;
@@ -101,12 +99,10 @@ const currentUser = async (req, res, next) => {
   res.status(200).json({ email, subscription });
 };
 
-//
 const changeSubscription = async (req, res, next) => {
-  const newSubscription = req.body;
   const currentUser = req.user;
 
-  const updateUser = await changeSubsc(currentUser.id, newSubscription);
+  const updateUser = await changeSubsc(currentUser.id, req.body);
 
   if (!updateUser)
     return res.status(400).json({ message: "Subscription value is wrong" });
@@ -115,6 +111,7 @@ const changeSubscription = async (req, res, next) => {
 
   res.status(200).json({ email, subscription });
 };
+// --------------End---------------
 
 const changeAvatar = async (req, res, next) => {
   const { file, user } = req;

@@ -132,7 +132,6 @@ const signTokenInBD = async (contactId, token) => {
 
 const checkPassword = (candidate, hash) => bcrypt.compare(candidate, hash);
 
-// перевірити!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 const logoutUserFn = async (userId) => {
   try {
     const conn = await pool.getConnection();
@@ -143,33 +142,28 @@ const logoutUserFn = async (userId) => {
       WHERE id=${userId}`
     );
     conn.close();
+
     return;
-
-    //
-    // const logoutUser = await User.findByIdAndUpdate(
-    //   userId,
-    //   { $unset: { token: 1 } },
-    //   // { token: undefined },
-    //   {
-    //     new: true,
-    //   }
-    // );
-
-    // return logoutUser;
   } catch (error) {
     console.log(error);
   }
 };
-// --------------End---------------
 
-const changeSubsc = async (userId, newSubscription) => {
+const changeSubsc = async (userId, body) => {
+  const { subscription } = body;
   try {
-    const user = await User.findByIdAndUpdate(userId, newSubscription, {
-      new: true,
-      runValidators: true,
-    });
+    const conn = await pool.getConnection();
 
-    return user;
+    await conn.query(
+      `UPDATE users
+      SET subscription='${subscription}'
+      WHERE id=${userId}`
+    );
+
+    const user = await conn.query(`SELECT * FROM users WHERE id = ${userId}`);
+    conn.close();
+
+    return user[0];
   } catch (error) {
     console.log(error);
   }
