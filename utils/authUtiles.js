@@ -1,9 +1,10 @@
 const uuid = require("uuid").v4;
-const User = require("../models/userModel");
+// const User = require("../models/userModel");
 const sendMail = require("./sendEmail");
 const { DEV_URL } = process.env;
 const pool = require("../dbConnection");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 // --------------on MariaDB---------------
 const createNewUser = async (body) => {
@@ -12,11 +13,15 @@ const createNewUser = async (body) => {
     // for hashedPassword;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(body.password, salt);
+    // for temp avatar logic
+    const emailHash = crypto.createHash("md5").update(body.email).digest("hex");
+    const avatarURL = `https://www.gravatar.com/avatar/${emailHash}.jpg?d=wavatar`;
 
+    // Maria DB
     const conn = await pool.getConnection();
 
     await conn.query(
-      `INSERT INTO users(password, email, verificationToken) VALUES('${hashedPassword}', '${body.email}', '${verifyCode}')`
+      `INSERT INTO users(password, email, verificationToken, avatarURL) VALUES('${hashedPassword}', '${body.email}', '${verifyCode}', '${avatarURL}')`
     );
 
     const newUser = await conn.query(
@@ -169,6 +174,28 @@ const changeSubsc = async (userId, body) => {
   }
 };
 
+const changeAvatarFn = async (userId, avatarURL) => {
+  try {
+    const conn = await pool.getConnection();
+
+    // have to add \\ manually, because ImageService, folePath with MySQL gives bug
+    await conn.query(
+      `UPDATE users
+      SET avatarURL='avatars\\\\${avatarURL}'
+      WHERE id=${userId}`
+    );
+
+    const userAvatar = await conn.query(
+      `SELECT avatarURL FROM users WHERE id = ${userId}`
+    );
+    conn.close();
+
+    return userAvatar[0];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   createNewUser,
   verifyUserFn,
@@ -179,4 +206,5 @@ module.exports = {
   logoutUserFn,
   changeSubsc,
   checkPassword,
+  changeAvatarFn,
 };

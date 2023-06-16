@@ -11,6 +11,7 @@ const {
   logoutUserFn,
   changeSubsc,
   checkPassword,
+  changeAvatarFn,
 } = require("../utils/authUtiles");
 
 const pool = require("../dbConnection");
@@ -111,46 +112,25 @@ const changeSubscription = async (req, res, next) => {
 
   res.status(200).json({ email, subscription });
 };
-// --------------End---------------
 
 const changeAvatar = async (req, res, next) => {
   const { file, user } = req;
 
   if (file) {
     const tmpPath = `./tmp`;
-
     user.avatarURL = await ImageService.save(
       tmpPath,
       user.id,
       250,
-      250,
-      "avatars"
-      // `userId_${user.id}`
+      250
+      // "avatars"
     );
   }
 
-  const updatedUser = await user.save();
-  res.status(200).json({ avatarURL: updatedUser.avatarURL });
+  const userAvatar = await changeAvatarFn(user.id, user.avatarURL);
+
+  res.status(200).json({ userAvatar });
 };
-
-// ChangeAvatar without /tmp
-// Avatar is saving on memoryStorage and Jimp saves into /public
-// const changeAvatar = async (req, res, next) => {
-//   const { file, user } = req;
-
-//   if (file) {
-//     user.avatarURL = await ImageService.save(
-//       file,
-//       250,
-//       250,
-//       "avatars",
-//       `userId_${user.id}`
-//     );
-//   }
-
-//   const updatedUser = await user.save();
-//   res.status(200).json({ avatarURL: updatedUser.avatarURL });
-// };
 
 module.exports = {
   registerUser,

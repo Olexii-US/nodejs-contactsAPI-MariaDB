@@ -39,13 +39,15 @@ class ImageService {
     const tmpAvatarPath = path.resolve(tmpPath);
 
     const avatarFileName = await fsPromises.readdir(tmpAvatarPath);
+
     const userAvatar = avatarFileName.find((item) => {
-      return path.parse(item).name === userId;
+      return path.parse(item).name === `${userId}`;
     });
 
     const fileName = `${uuid()}.jpg`;
 
-    const filePath = path.join(process.cwd(), "public", ...pathParts);
+    // const filePath = path.join(process.cwd(), "public", ...pathParts);
+    const filePath = path.join(process.cwd(), "public\\avatars");
 
     await fsExt.ensureDir(filePath);
 
@@ -54,6 +56,8 @@ class ImageService {
 
     await Jimp.read(`${tmpAvatarPath}/${userAvatar}`)
       .then((img) => {
+        console.log("imgWidth, imgHeight", imgWidth, imgHeight);
+
         return img
           .resize(imgWidth, imgHeight)
           .quality(60)
