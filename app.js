@@ -28,13 +28,18 @@ app.use(express.json());
 // Static folder connect
 app.use(express.static("public"));
 
+// ------authRouter om MariaDB----------
 app.use("/api/users", authRouter);
+// -----EXIT---- MariaDB----------
 
 // middleWare
 // checks if contact exist
+// TO--Doooo on Maria DB
 app.use("/api/contacts/:contactId", isContactIdExist);
 
+// ------contactsRouter om MariaDB----------
 app.use("/api/contacts", contactsRouter);
+// -----EXIT---- MariaDB----------
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });

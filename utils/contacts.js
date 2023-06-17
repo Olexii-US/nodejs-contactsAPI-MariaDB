@@ -1,4 +1,5 @@
 const Contacts = require("../models/contactsModel");
+const pool = require("../dbConnection");
 
 const listContacts = async (owner) => {
   try {
@@ -28,15 +29,30 @@ const removeContact = async (contactId, owner) => {
   }
 };
 
+// --------------on MariaDB---------------
 const addContact = async (body, owner) => {
   try {
-    const newContact = await Contacts.create({ ...body, owner });
+    const { name, email, phone } = body;
+    const conn = await pool.getConnection();
 
-    return newContact;
+    const addContact = await conn.query(
+      `INSERT INTO contacts(name, email, phone, owner) VALUES('${name}', '${email}', '${phone}', ${owner})`
+    );
+
+    // const newContact = await conn.query(
+    //   `SELECT * FROM contacts where id = LAST_INSERT_ID()`
+    // );
+    const newContact = await conn.query(
+      `SELECT * FROM contacts where id = ${addContact.insertId}`
+    );
+    conn.close();
+
+    return newContact[0];
   } catch (error) {
     console.log(error);
   }
 };
+// --------------END of--- MariaDB---------------
 
 const updateContact = async (contactId, body, owner) => {
   try {
