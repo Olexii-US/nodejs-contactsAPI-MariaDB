@@ -41,21 +41,16 @@ const getOneContactById = async (req, res, next) => {
 
 // --------------on MariaDB---------------
 const postContact = async (req, res, next) => {
-  console.log("----------req.user--------", req.user);
-  console.log("----------req.body--------", req.body);
-
   const { id } = req.user;
   const newContact = await addContact(req.body, id);
 
   res.status(201).json(newContact);
 };
-// --------------END of--- MariaDB---------------
 
 const deleteContact = async (req, res, next) => {
   const { id } = req.params;
-  const { _id } = req.user;
 
-  const delatedContacts = await removeContact(id, _id);
+  const delatedContacts = await removeContact(id, req.user);
 
   if (!delatedContacts)
     return res
@@ -64,6 +59,7 @@ const deleteContact = async (req, res, next) => {
 
   res.status(200).json({ message: "contact deleted" });
 };
+// --------------END of--- MariaDB---------------
 
 const putContact = async (req, res, next) => {
   const { id } = req.params;

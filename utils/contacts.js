@@ -18,18 +18,23 @@ const getContactById = async (contactId, owner) => {
   }
 };
 
-const removeContact = async (contactId, owner) => {
+// --------------on MariaDB---------------
+const removeContact = async (contactId, user) => {
   try {
-    await Contacts.findOneAndDelete({ _id: contactId, owner });
-    // await Contacts.findByIdAndDelete(contactId);
+    const conn = await pool.getConnection();
 
-    return;
+    const deleteContactById = await conn.query(
+      `DELETE FROM contacts WHERE id = ${contactId} AND owner = ${user.id}`
+    );
+
+    conn.close();
+
+    return deleteContactById.affectedRows;
   } catch (error) {
     console.log(error);
   }
 };
 
-// --------------on MariaDB---------------
 const addContact = async (body, owner) => {
   try {
     const { name, email, phone } = body;

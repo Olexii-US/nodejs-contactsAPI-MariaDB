@@ -29,7 +29,6 @@ const protectedWithToken = asyncWrapper(async (req, res, next) => {
 
   if (!currentUser[0])
     return res.status(401).json({ message: "Not authorized" });
-  console.log("currentUser[0]", currentUser[0]);
 
   req.user = currentUser[0];
 

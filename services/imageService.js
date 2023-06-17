@@ -56,8 +56,6 @@ class ImageService {
 
     await Jimp.read(`${tmpAvatarPath}/${userAvatar}`)
       .then((img) => {
-        console.log("imgWidth, imgHeight", imgWidth, imgHeight);
-
         return img
           .resize(imgWidth, imgHeight)
           .quality(60)
