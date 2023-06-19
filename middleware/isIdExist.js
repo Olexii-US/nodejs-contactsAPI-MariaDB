@@ -1,17 +1,18 @@
-const { Types } = require("mongoose");
-const Contacts = require("../models/contactsModel");
+// const { Types } = require("mongoose");
+// const Contacts = require("../models/contactsModel");
+const pool = require("../dbConnection");
 
+// --------------on MariaDB---------------
 const isContactIdExist = async (req, res, next) => {
   try {
-    const { contactId } = req.params;
+    const conn = await pool.getConnection();
 
-    const idIsValid = Types.ObjectId.isValid(contactId);
-    if (!idIsValid) {
-      return res.status(404).json({ message: "Not found" });
-    }
+    const isIdExist = await conn.query(
+      `SELECT id FROM contacts WHERE id='${req.params.contactId}'`
+    );
+    conn.close();
 
-    const isIdExist = await Contacts.exists({ _id: contactId });
-    if (!isIdExist) {
+    if (isIdExist.length === 0) {
       return res.status(404).json({ message: "Not found" });
     }
     next();

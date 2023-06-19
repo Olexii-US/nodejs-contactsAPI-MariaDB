@@ -1,9 +1,16 @@
 const Contacts = require("../models/contactsModel");
 const pool = require("../dbConnection");
 
+// --------------on MariaDB---------------
 const listContacts = async (owner) => {
   try {
-    return await Contacts.find({ owner }).select("-__v");
+    const conn = await pool.getConnection();
+
+    const getAllContacts = await conn.query(
+      `SELECT * FROM contacts where owner = ${owner}`
+    );
+    conn.close();
+    return getAllContacts;
   } catch (error) {
     console.log(error);
   }
@@ -11,14 +18,19 @@ const listContacts = async (owner) => {
 
 const getContactById = async (contactId, owner) => {
   try {
-    return await Contacts.findOne({ _id: contactId, owner });
-    // return await Contacts.findById(contactId);
+    const conn = await pool.getConnection();
+
+    const getOneContact = await conn.query(
+      `SELECT * FROM contacts where owner = ${owner} and id = ${contactId}`
+    );
+    conn.close();
+
+    return getOneContact[0];
   } catch (error) {
     console.log(error);
   }
 };
 
-// --------------on MariaDB---------------
 const removeContact = async (contactId, user) => {
   try {
     const conn = await pool.getConnection();
@@ -43,10 +55,10 @@ const addContact = async (body, owner) => {
     const addContact = await conn.query(
       `INSERT INTO contacts(name, email, phone, owner) VALUES('${name}', '${email}', '${phone}', ${owner})`
     );
-
     // const newContact = await conn.query(
     //   `SELECT * FROM contacts where id = LAST_INSERT_ID()`
     // );
+
     const newContact = await conn.query(
       `SELECT * FROM contacts where id = ${addContact.insertId}`
     );
@@ -59,21 +71,39 @@ const addContact = async (body, owner) => {
 };
 // --------------END of--- MariaDB---------------
 
-const updateContact = async (contactId, body, owner) => {
+const updateContact = async (contactId, body, user) => {
   try {
-    const updatedContact = await Contacts.findOneAndUpdate(
-      { _id: contactId, owner },
-      body,
-      {
-        new: true,
-      }
-    );
-    // Логіка без прив'язки до юзерів
-    // const updatedContact = await Contacts.findByIdAndUpdate(contactId, body, {
-    //   new: true,
-    // });
+    const conn = await pool.getConnection();
+    const { name, email, phone } = body;
+    const contactBeforeUpdate = await getContactById(contactId, user.id);
 
-    return updatedContact;
+    const newName = !name ? contactBeforeUpdate.name : name;
+    const newEmail = !email ? contactBeforeUpdate.email : email;
+    const newPhone = !phone ? contactBeforeUpdate.phone : phone;
+
+    console.log("body data-------", name, email, phone);
+    console.log("new body data-------", newName, newEmail, newPhone);
+    console.log(
+      "mariadbbbbbb",
+      contactBeforeUpdate.name,
+      contactBeforeUpdate.email,
+      contactBeforeUpdate.phone
+    );
+
+    await conn.query(
+      `UPDATE contacts 
+     SET name='${newName}', email='${newEmail}', phone='${newPhone}'
+      WHERE
+      owner = ${user.id} and id = ${contactId}`
+    );
+
+    const updatedContact = await conn.query(
+      `SELECT name, email, phone, favorite FROM contacts  WHERE
+      owner = ${user.id} and id = ${contactId}`
+    );
+    conn.close();
+
+    return updatedContact[0];
   } catch (error) {
     console.log(error);
   }

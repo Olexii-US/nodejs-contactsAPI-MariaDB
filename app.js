@@ -35,7 +35,7 @@ app.use("/api/users", authRouter);
 // middleWare
 // checks if contact exist
 // TO--Doooo on Maria DB
-// app.use("/api/contacts/:contactId", isContactIdExist);
+app.use("/api/contacts/:contactId", isContactIdExist);
 
 // ------contactsRouter om MariaDB----------
 app.use("/api/contacts", contactsRouter);
