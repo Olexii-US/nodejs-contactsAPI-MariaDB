@@ -12,17 +12,26 @@ const {
 const getContacts = async (req, res, next) => {
   const { id } = req.user;
 
-  // const { page, limit, favorite } = req.query;
+  const { page, limit, favorite } = req.query;
 
-  // console.log("req.query---------", req.query);
+  console.log("req.query---------", req.query);
 
-  // -------to do ---------if req.query
   // if req.query
-  // if (page || limit || favorite) {
-  //   const filteredContacts = await queryContacts(id, page, limit, favorite);
-  //   return res.status(200).json(filteredContacts);
-  // }
-  // -------end to do ---------if req.query
+  if (page || limit || favorite) {
+    const filteredContacts = await queryContacts(
+      id,
+      page,
+      Number(limit),
+      favorite
+    );
+
+    if (filteredContacts.filteredContacts.length === 0)
+      return res.status(200).json({
+        message: `Sorry, there are no contacts matching your request`,
+      });
+
+    return res.status(200).json(filteredContacts);
+  }
 
   // if No req.query
   const contactsList = await listContacts(id);
@@ -75,17 +84,17 @@ const putContact = async (req, res, next) => {
 
   res.status(200).json(updatedContact);
 };
-// --------------END of--- MariaDB---------------
 
 const patchFavoriteContact = async (req, res, next) => {
-  const { id } = req.params;
-  const { _id } = req.user;
+  const contactId = Number(req.params.id);
+  const user = req.user;
 
-  const favoriteContact = await updateStatusContact(id, req.body, _id);
+  const favoriteContact = await updateStatusContact(contactId, req.body, user);
+
   if (!favoriteContact)
-    return res
-      .status(200)
-      .json({ message: `This user does not have contact with id: ${id}` });
+    return res.status(200).json({
+      message: `This user does not have contact with id: ${contactId}`,
+    });
 
   res.status(200).json(favoriteContact);
 };

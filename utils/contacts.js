@@ -1,27 +1,27 @@
-const Contacts = require("../models/contactsModel");
 const pool = require("../dbConnection");
 
 // --------------on MariaDB---------------
-const listContacts = async (owner) => {
+const listContacts = async (ownerId) => {
   try {
     const conn = await pool.getConnection();
 
     const getAllContacts = await conn.query(
-      `SELECT * FROM contacts where owner = ${owner}`
+      `SELECT * FROM contacts where owner = ${ownerId}`
     );
     conn.close();
+
     return getAllContacts;
   } catch (error) {
     console.log(error);
   }
 };
 
-const getContactById = async (contactId, owner) => {
+const getContactById = async (contactId, ownerId) => {
   try {
     const conn = await pool.getConnection();
 
     const getOneContact = await conn.query(
-      `SELECT * FROM contacts where owner = ${owner} and id = ${contactId}`
+      `SELECT id, name, email, phone, favorite FROM contacts where owner = ${ownerId} and id = ${contactId}`
     );
     conn.close();
 
@@ -47,34 +47,33 @@ const removeContact = async (contactId, user) => {
   }
 };
 
-const addContact = async (body, owner) => {
+const addContact = async (body, ownerID) => {
   try {
     const { name, email, phone } = body;
     const conn = await pool.getConnection();
 
     const addContact = await conn.query(
-      `INSERT INTO contacts(name, email, phone, owner) VALUES('${name}', '${email}', '${phone}', ${owner})`
+      `INSERT INTO contacts(name, email, phone, owner) VALUES('${name}', '${email}', '${phone}', ${ownerID})`
     );
     // const newContact = await conn.query(
     //   `SELECT * FROM contacts where id = LAST_INSERT_ID()`
     // );
 
-    const newContact = await conn.query(
-      `SELECT * FROM contacts where id = ${addContact.insertId}`
-    );
+    const newContact = await getContactById(addContact.insertId, ownerID);
+
     conn.close();
 
-    return newContact[0];
+    return newContact;
   } catch (error) {
     console.log(error);
   }
 };
-// --------------END of--- MariaDB---------------
 
 const updateContact = async (contactId, body, user) => {
   try {
     const conn = await pool.getConnection();
     const { name, email, phone } = body;
+
     const contactBeforeUpdate = await getContactById(contactId, user.id);
 
     const newName = !name ? contactBeforeUpdate.name : name;
@@ -97,31 +96,26 @@ const updateContact = async (contactId, body, user) => {
       owner = ${user.id} and id = ${contactId}`
     );
 
-    const updatedContact = await conn.query(
-      `SELECT name, email, phone, favorite FROM contacts  WHERE
-      owner = ${user.id} and id = ${contactId}`
-    );
-    conn.close();
+    const updatedContact = await getContactById(contactId, user.id);
 
-    return updatedContact[0];
+    return updatedContact;
   } catch (error) {
     console.log(error);
   }
 };
 
-const updateStatusContact = async (contactId, body, owner) => {
+const updateStatusContact = async (contactId, body, user) => {
   try {
-    const updatedFvrtContact = await Contacts.findOneAndUpdate(
-      { _id: contactId, owner },
-      body,
-      {
-        new: true,
-      }
+    const conn = await pool.getConnection();
+
+    await conn.query(
+      `UPDATE contacts 
+     SET favorite=${body.favorite} WHERE owner = ${user.id} and id = ${contactId}`
     );
-    // const updatedFvrtContact = await Contacts.findByIdAndUpdate(
-    //   contactId,
-    //   body,   { new: true }
-    // );
+
+    const updatedFvrtContact = await getContactById(contactId, user.id);
+
+    conn.close();
 
     return updatedFvrtContact;
   } catch (error) {
@@ -130,24 +124,40 @@ const updateStatusContact = async (contactId, body, owner) => {
 };
 
 // Pagination and filter contacts
-const queryContacts = async (owner, page, limit, favorite) => {
+const queryContacts = async (ownerId, page, limit, favorite) => {
   try {
-    const paginationPage = +page || 1;
-    const paginationLimit = +limit || 20;
-    const skipCount = (paginationPage - 1) * paginationLimit;
+    const conn = await pool.getConnection();
+    const offset = (page - 1) * limit;
 
-    const query = favorite ? { owner, favorite } : { owner };
+    let query;
+    let countQuery;
 
-    const filteredContacts = await Contacts.find(query)
-      .select("-__v")
-      .skip(skipCount)
-      .limit(paginationLimit);
+    if (favorite === undefined) {
+      query = `SELECT * FROM contacts where owner = ${ownerId} LIMIT ${limit} OFFSET ${offset}`;
+      countQuery = `SELECT COUNT(*) FROM contacts where owner = ${ownerId}`;
+    } else {
+      query = `SELECT * FROM contacts where owner = ${ownerId} and favorite = ${favorite} LIMIT ${limit} OFFSET ${offset};`;
+      countQuery = `SELECT COUNT(*) FROM contacts where owner = ${ownerId} and favorite = ${favorite}`;
+    }
+
+    const filteredContacts = await conn.query(`${query}`);
+
+    // ---- additional pagination / filter info ----
+    const totalRows = await conn.query(`SELECT COUNT(*) FROM contacts`);
+    const totalContacts = Number(Object.values(totalRows[0]));
+
+    const totalFiltered = await conn.query(`${countQuery}`);
+    const totalFilteredContacts = Number(Object.values(totalFiltered[0]));
 
     const countPerPage = filteredContacts.length;
-    const total = await Contacts.count();
-    const totalFiltered = await Contacts.countDocuments(query);
+    conn.close();
 
-    return { countPerPage, total, totalFiltered, filteredContacts };
+    return {
+      countPerPage,
+      totalContacts,
+      totalFilteredContacts,
+      filteredContacts,
+    };
   } catch (error) {
     console.log(error);
   }
