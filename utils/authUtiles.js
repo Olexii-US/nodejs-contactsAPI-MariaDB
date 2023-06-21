@@ -178,7 +178,7 @@ const changeAvatarFn = async (userId, avatarURL) => {
   try {
     const conn = await pool.getConnection();
 
-    // have to add \\ manually, because ImageService, folePath with MySQL gives bug
+    // have to add '\\' manually, because ImageService, folePath with MySQL gives bug
     await conn.query(
       `UPDATE users
       SET avatarURL='avatars\\\\${avatarURL}'

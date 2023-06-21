@@ -80,15 +80,6 @@ const updateContact = async (contactId, body, user) => {
     const newEmail = !email ? contactBeforeUpdate.email : email;
     const newPhone = !phone ? contactBeforeUpdate.phone : phone;
 
-    console.log("body data-------", name, email, phone);
-    console.log("new body data-------", newName, newEmail, newPhone);
-    console.log(
-      "mariadbbbbbb",
-      contactBeforeUpdate.name,
-      contactBeforeUpdate.email,
-      contactBeforeUpdate.phone
-    );
-
     await conn.query(
       `UPDATE contacts 
      SET name='${newName}', email='${newEmail}', phone='${newPhone}'
@@ -136,7 +127,7 @@ const queryContacts = async (ownerId, page, limit, favorite) => {
       query = `SELECT * FROM contacts where owner = ${ownerId} LIMIT ${limit} OFFSET ${offset}`;
       countQuery = `SELECT COUNT(*) FROM contacts where owner = ${ownerId}`;
     } else {
-      query = `SELECT * FROM contacts where owner = ${ownerId} and favorite = ${favorite} LIMIT ${limit} OFFSET ${offset};`;
+      query = `SELECT * FROM contacts where owner = ${ownerId} and favorite = ${favorite} LIMIT ${limit} OFFSET ${offset}`;
       countQuery = `SELECT COUNT(*) FROM contacts where owner = ${ownerId} and favorite = ${favorite}`;
     }
 
