@@ -9,8 +9,10 @@ components:
 # -----//  Contacts docs  //-----
 
 # returns user's contacts
-/api/contacts/:
+/api/contacts:
   get:
+    security:
+      - bearerAuth: []
     summary: Returns the user's contacts.
     tags:
       - Contacts
@@ -68,53 +70,14 @@ components:
         description: Wrong query field
       401:
         description: Not authorized
-
-# returns user's contact by id
-/api/contacts/:id:
-  get:
-    summary: Returns the user's contacts.
-    tags:
-      - Contacts
-    description: Returns one user's contact by id.
-    parameters:
-      - in: path
-        name: id
-        type: integer
-        required: true
-        description: Contact id.
-    responses:
-      200:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  description: Contact Id.
-                  example: 1
-                name:
-                  type: string
-                  description: Contact name.
-                  example: "Allen Raymond"
-                email:
-                  type: string
-                  description: Contact email.
-                  example: "nulla.ante@vestibul.co.uk"
-                phone:
-                  type: string
-                  description: Contact phone.
-                  example: "(992) 914-3792"
-                favorite:
-                  type: boolean
-                  description: Is contact favorite.
-                  example: "true"
-      401:
-        description: Not authorized
+      404:
+        description: Not Found
 
 # Creates new user's contact
 /api/contacts/:
   post:
+    security:
+      - bearerAuth: []
     summary: Creates new contact.
     tags:
       - Contacts
@@ -166,6 +129,204 @@ components:
                   description: Is contact favorite.
                   example: "true"
       400:
-        description: Missing required field    
+        description: Missing required field
       401:
         description: Not authorized
+      404:
+        description: Not Found
+
+# returns user's contact by id
+/api/contacts/{id}:
+  get:
+    security:
+      - bearerAuth: []
+    summary: Returns the user's contacts.
+    tags:
+      - Contacts
+    description: Returns one user's contact by id.
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: Contact id.
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Contact Id.
+                  example: 1
+                name:
+                  type: string
+                  description: Contact name.
+                  example: "Allen Raymond"
+                email:
+                  type: string
+                  description: Contact email.
+                  example: "nulla.ante@vestibul.co.uk"
+                phone:
+                  type: string
+                  description: Contact phone.
+                  example: "(992) 914-3792"
+                favorite:
+                  type: boolean
+                  description: Is contact favorite.
+                  example: "true"
+      401:
+        description: Not authorized
+      404:
+        description: Not Found
+
+  # delete user's contact by id
+  delete:
+    security:
+      - bearerAuth: []
+    summary: Delete the user's contacts.
+    tags:
+      - Contacts
+    description: Delete one user's contact by id.
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: Contact id.
+    responses:
+      200:
+        description: Contact deleted / or / This user does not have contact with this id
+      401:
+        description: Not authorized
+      404:
+        description: Not Found
+
+  # Update user's contact by id
+  put:
+    security:
+      - bearerAuth: []
+    summary: Update the user's contact.
+    tags:
+      - Contacts
+    description: Update user's contact by id.
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: Contact id.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Contact name.
+                example: "Allen Raymond"
+              email:
+                type: string
+                description: Contact email.
+                example: "nulla.ante@vestibul.co.uk"
+              phone:
+                type: string
+                description: Contact phone.
+                example: "(992) 914-3792"
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Contact Id.
+                  example: 1
+                name:
+                  type: string
+                  description: Contact name.
+                  example: "Allen Raymond"
+                email:
+                  type: string
+                  description: Contact email.
+                  example: "nulla.ante@vestibul.co.uk"
+                phone:
+                  type: string
+                  description: Contact phone.
+                  example: "(992) 914-3792"
+                favorite:
+                  type: boolean
+                  description: Is contact favorite.
+                  example: "true"
+      400:
+        description: Missing fields
+      401:
+        description: Not authorized
+      404:
+        description: Not Found
+
+# Sets whether the user's contact is favorite
+/api/contacts/{id}/favorite:
+  patch:
+    security:
+      - bearerAuth: []
+    summary: Sets the user's favorite contacts.
+    tags:
+      - Contacts
+    description: Sets whether the user's contact is favorite.
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: Contact id.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              favorite:
+                type: boolean
+                description: Is contact favorite.
+                example: "true"
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Contact Id.
+                  example: 1
+                name:
+                  type: string
+                  description: Contact name.
+                  example: "Allen Raymond"
+                email:
+                  type: string
+                  description: Contact email.
+                  example: "nulla.ante@vestibul.co.uk"
+                phone:
+                  type: string
+                  description: Contact phone.
+                  example: "(992) 914-3792"
+                favorite:
+                  type: boolean
+                  description: Is contact favorite.
+                  example: "true"
+      400:
+        description: Missing field favorite
+      401:
+        description: Not authorized
+      404:
+        description: Not Found

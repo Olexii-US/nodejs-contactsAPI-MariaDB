@@ -14,8 +14,6 @@ const getContacts = async (req, res, next) => {
 
   const { page, limit, favorite } = req.query;
 
-  console.log("req.query---------", req.query);
-
   // if req.query
   if (page || limit || favorite) {
     const filteredContacts = await queryContacts(
