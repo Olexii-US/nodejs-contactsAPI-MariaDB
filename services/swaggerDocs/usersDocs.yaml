@@ -1,0 +1,287 @@
+# -----//  Scheme for protected Routs  //-----
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+# -----//  User docs  //-----
+
+# register user
+/api/users/register:
+  post:
+    summary: Provides user registration.
+    tags:
+      - Users
+    description: Provides user registration, gives verification token and temporary avatar and sends verification message to user's email.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: The user's email.
+                example: "ceser80397@in2reach.com"
+              password:
+                type: string
+                description: The user's password to login the application. Must contain letters、numbers and special character
+                example: Example_123rs$t
+    responses:
+      201:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: The user's email.
+                      example: "ceser80397@in2reach.com"
+                    subscription:
+                      type: string
+                      description: The user's subscription.
+                      example: "starter"
+      400:
+        description: Validation error
+      409:
+        description: Email in use
+
+# set verificationToken to user (backend side)
+/api/users/verify/:verificationToken:
+  get:
+    summary: Sets the user verification status in true on server side.
+    tags:
+      - Users
+    description: Sets the user verification status in true on server side.
+    parameters:
+      - in: path
+        name: verificationToken
+        type: string
+        required: true
+        description: Verification ID of the user to pass the registration.
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Verification status.
+                  example: Verification successful.
+      404:
+        description: User not found
+
+# verify user
+/api/users/verify:
+  post:
+    summary: Checks if user is verified.
+    tags:
+      - Users
+    description:
+      Checks if user is verified. In case if user didn't pass the verification
+      re-sends verification message on user's email when user sends his email in
+      request.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: The user's email.
+                example: "ceser80397@in2reach.com"
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Verification status.
+                  example: Verification email sent
+      400:
+        description: Verification has already been passed
+      401:
+        description: User not found
+
+# login user
+/api/users/login:
+  post:
+    summary: Provides user login in application.
+    tags:
+      - Users
+    description: Provides user login in application.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: The user's email.
+                example: "ceser80397@in2reach.comm"
+              password:
+                type: string
+                description: The user's password to login the application. Must contain letters、numbers and special character
+                example: Example_123rs$t
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: The user's access token.
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MzcwYmE2ZjUxZmNlYzMzY2M2NzZiYiIsImlhdCI6MTY4MTMyOTE1MiwiZXhwIjoxNjgxNDE1NTUyfQ.wv9sAH85K6NmXjamFF0lpCAIK6UseTFKdqMtdaFY9FM
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: The user's email.
+                      example: "ceser80397@in2reach.com"
+                    subscription:
+                      type: string
+                      description: The user's subscription.
+                      example: "starter"
+      400:
+        description: Validation error
+      401:
+        description: Email or password is wrong / or / Email is not verified
+
+# logout user
+/api/users/logout:
+  post:
+    security:
+      - bearerAuth: []
+    summary: Logout user.
+    tags:
+      - Users
+    description: Logout user from app.
+    responses:
+      204:
+      401:
+        description: Not authorized
+
+# Current user
+/api/users/current:
+  get:
+    security:
+      - bearerAuth: []
+    summary: Gives information about user.
+    tags:
+      - Users
+    description: Gives information about user.
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email.
+                  example: "ceser80397@in2reach.com"
+                subscription:
+                  type: string
+                  description: The user's subscription.
+                  example: "starter"
+      401:
+        description: Not authorized
+
+# Change user subscription
+/api/users/:
+  patch:
+    security:
+      - bearerAuth: []
+    summary: Change user subscription.
+    tags:
+      - Users
+    description: Change user subscription ("starter", "pro", "business")
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              subscription:
+                type: string
+                description: 'Subscription can be: "starter", "pro", "business"'
+                example: "starter"
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email.
+                  example: "ceser80397@in2reach.com"
+                subscription:
+                  type: string
+                  description: The user's subscription.
+                  example: "starter"
+      400:
+        description: Subscription value is wrong
+      401:
+        description: Not authorized
+
+# Change user avatar
+/api/users/avatars:
+  patch:
+    security:
+      - bearerAuth: []
+    summary: Change user avatar.
+    tags:
+      - Users
+    description: You can upload new avatar image and change user avatar.
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              avatarURL:
+                type: string
+                format: binary
+                description: Select avatar file
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userAvatar:
+                  type: object
+                  properties:
+                    avatarURL:
+                      type: string
+                      description: Rout to the avaatar file
+                      example: "avatars//c132dd5d-c82c-4165-bebb-ab31129b5d21.jpg"
+      400:
+        description: Validation error
+      401:
+        description: Not authorized

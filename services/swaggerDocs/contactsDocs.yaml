@@ -1,0 +1,171 @@
+# -----//  Scheme for protected Routs  //-----
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+# -----//  Contacts docs  //-----
+
+# returns user's contacts
+/api/contacts/:
+  get:
+    summary: Returns the user's contacts.
+    tags:
+      - Contacts
+    description: Returns all user's contacts. Query parameters (pagination and favorite contacts filter) can be added.
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Number of the page.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: The numbers of contacts to return.
+      - in: query
+        name: favorite
+        schema:
+          type: boolean
+        description: Show only favorite contacts (true or false).
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: Contact Id.
+                    example: 1
+                  name:
+                    type: string
+                    description: Contact name.
+                    example: "Allen Raymond"
+                  email:
+                    type: string
+                    description: Contact email.
+                    example: "nulla.ante@vestibul.co.uk"
+                  phone:
+                    type: string
+                    description: Contact phone.
+                    example: "(992) 914-3792"
+                  favorite:
+                    type: boolean
+                    description: Is contact favorite.
+                    example: "true"
+                  owner:
+                    type: integer
+                    description: User Id, of this contact.
+                    example: 1
+      400:
+        description: Wrong query field
+      401:
+        description: Not authorized
+
+# returns user's contact by id
+/api/contacts/:id:
+  get:
+    summary: Returns the user's contacts.
+    tags:
+      - Contacts
+    description: Returns one user's contact by id.
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: Contact id.
+    responses:
+      200:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Contact Id.
+                  example: 1
+                name:
+                  type: string
+                  description: Contact name.
+                  example: "Allen Raymond"
+                email:
+                  type: string
+                  description: Contact email.
+                  example: "nulla.ante@vestibul.co.uk"
+                phone:
+                  type: string
+                  description: Contact phone.
+                  example: "(992) 914-3792"
+                favorite:
+                  type: boolean
+                  description: Is contact favorite.
+                  example: "true"
+      401:
+        description: Not authorized
+
+# Creates new user's contact
+/api/contacts/:
+  post:
+    summary: Creates new contact.
+    tags:
+      - Contacts
+    description: Creates new user's contact.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Contact name.
+                example: "Allen Raymond"
+              email:
+                type: string
+                description: Contact email.
+                example: "nulla.ante@vestibul.co.uk"
+              phone:
+                type: string
+                description: Contact phone.
+                example: "(992) 914-3792"
+    responses:
+      201:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Contact Id.
+                  example: 1
+                name:
+                  type: string
+                  description: Contact name.
+                  example: "Allen Raymond"
+                email:
+                  type: string
+                  description: Contact email.
+                  example: "nulla.ante@vestibul.co.uk"
+                phone:
+                  type: string
+                  description: Contact phone.
+                  example: "(992) 914-3792"
+                favorite:
+                  type: boolean
+                  description: Is contact favorite.
+                  example: "true"
+      400:
+        description: Missing required field    
+      401:
+        description: Not authorized

@@ -4,16 +4,21 @@ const cors = require("cors");
 // const mongoose = require("mongoose");
 require("dotenv").config();
 const app = express();
+const swaggerUi = require("swagger-ui-express");
 
 const contactsRouter = require("./routes/api/contacts");
 const { isContactIdExist } = require("./middleware/isIdExist");
 const authRouter = require("./routes/api/authRoutes");
+const { swaggerSetups } = require("./services/swaggerService");
+
+const swaggerSpec = swaggerSetups();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Static folder connect
 app.use(express.static("public"));

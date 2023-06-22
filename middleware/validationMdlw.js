@@ -51,7 +51,7 @@ const favoriteContactValidation = (req, res, next) => {
   const valodationResult = schema.validate(req.body);
 
   if (valodationResult.error) {
-    return res.status(400).json({ message: "missing field favorite" });
+    return res.status(400).json({ message: "Missing field favorite" });
   }
   next();
 };
