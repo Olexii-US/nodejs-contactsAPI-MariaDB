@@ -46,7 +46,6 @@ class ImageService {
 
     const fileName = `${uuid()}.jpg`;
 
-    // const filePath = path.join(process.cwd(), "public", ...pathParts);
     const filePath = path.join(process.cwd(), "public\\avatars");
 
     await fsExt.ensureDir(filePath);

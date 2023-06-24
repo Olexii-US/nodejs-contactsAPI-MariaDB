@@ -1,9 +1,7 @@
 const { asyncWrapper } = require("../helpers/tryCatchHelper");
-// const User = require("../models/userModel");
 const { tokenDecoder } = require("../services/getToken");
 const pool = require("../dbConnection");
 
-// --------------on MariaDB---------------
 const protectedWithToken = asyncWrapper(async (req, res, next) => {
   const token =
     req.headers.authorization?.startsWith("Bearer") &&

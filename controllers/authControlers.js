@@ -1,4 +1,3 @@
-// const User = require("../models/userModel");
 const { signToken } = require("../services/getToken");
 const { ImageService } = require("../services/imageService");
 const {
@@ -16,7 +15,6 @@ const {
 
 const pool = require("../dbConnection");
 
-// --------------on MariaDB---------------
 const registerUser = async (req, res, next) => {
   const conn = await pool.getConnection();
   const userExists = await conn.query(

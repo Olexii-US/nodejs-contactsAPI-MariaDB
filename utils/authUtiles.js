@@ -1,23 +1,22 @@
 const uuid = require("uuid").v4;
-// const User = require("../models/userModel");
 const sendMail = require("./sendEmail");
 const { DEV_URL } = process.env;
 const pool = require("../dbConnection");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
-// --------------on MariaDB---------------
 const createNewUser = async (body) => {
   try {
     const verifyCode = uuid();
+
     // for hashedPassword;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(body.password, salt);
+
     // for temp avatar logic
     const emailHash = crypto.createHash("md5").update(body.email).digest("hex");
     const avatarURL = `https://www.gravatar.com/avatar/${emailHash}.jpg?d=wavatar`;
 
-    // Maria DB
     const conn = await pool.getConnection();
 
     await conn.query(

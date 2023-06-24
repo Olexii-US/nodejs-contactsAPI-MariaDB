@@ -1,6 +1,5 @@
 const pool = require("../dbConnection");
 
-// --------------on MariaDB---------------
 const listContacts = async (ownerId) => {
   try {
     const conn = await pool.getConnection();
@@ -55,9 +54,6 @@ const addContact = async (body, ownerID) => {
     const addContact = await conn.query(
       `INSERT INTO contacts(name, email, phone, owner) VALUES('${name}', '${email}', '${phone}', ${ownerID})`
     );
-    // const newContact = await conn.query(
-    //   `SELECT * FROM contacts where id = LAST_INSERT_ID()`
-    // );
 
     const newContact = await getContactById(addContact.insertId, ownerID);
 

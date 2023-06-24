@@ -1,8 +1,5 @@
-// const { Types } = require("mongoose");
-// const Contacts = require("../models/contactsModel");
 const pool = require("../dbConnection");
 
-// --------------on MariaDB---------------
 const isContactIdExist = async (req, res, next) => {
   try {
     const conn = await pool.getConnection();

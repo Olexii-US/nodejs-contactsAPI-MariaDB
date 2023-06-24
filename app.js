@@ -1,7 +1,7 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
-// const mongoose = require("mongoose");
+
 require("dotenv").config();
 const app = express();
 const swaggerUi = require("swagger-ui-express");

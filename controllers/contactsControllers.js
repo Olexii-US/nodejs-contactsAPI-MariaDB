@@ -8,7 +8,6 @@ const {
   queryContacts,
 } = require("../utils/contacts");
 
-// --------------on MariaDB---------------
 const getContacts = async (req, res, next) => {
   const { id } = req.user;
 
