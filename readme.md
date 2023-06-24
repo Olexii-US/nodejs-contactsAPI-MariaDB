@@ -48,15 +48,15 @@ UNIQUE KEY `users_un` (`email`)
 2. create/download contactsapi BD to your MariaBD
 3. create .env file with settings:
 
-PORT=3000
-JWT_SECRET="........enter your key..........."
-SENDGRID_API_KEY='........enter your key...........'
-DEV_URL="http://localhost:3000"
-MARIA_DB_HOST= "..........."
-MARIA_DB_USER="..............."
-MARIA_DB_PASS="............."
-MARIA_DB_PORT=....
-MARIA_DB_DATABASE="contactsAPI"
+- PORT=3000
+- JWT_SECRET="........enter your key..........."
+- SENDGRID_API_KEY='........enter your key...........'
+- DEV_URL="http://localhost:3000"
+- MARIA_DB_HOST= "..........."
+- MARIA_DB_USER="..............."
+- MARIA_DB_PASS="............."
+- MARIA_DB_PORT=....
+- MARIA_DB_DATABASE="contactsAPI"
 
 ## Сommands:
 
