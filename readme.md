@@ -1,27 +1,57 @@
-## GoIT Node.js Course Template Homework
+## Contacts book API with possibility to add, delete, edit contacts.
 
-Виконайте форк цього репозиторію для виконання домашніх завдань (2-6)
-Форк створить репозиторій на вашому http://github.com
+This backend is based on MariaDB.
 
-Додайте ментора до колаборації
+## Here is DB structure:
 
-Для кожної домашньої роботи створюйте свою гілку.
+CREATE DATABASE `contactsapi` /_!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci _/;
 
-- hw02
-- hw03
-- hw04
-- hw05
-- hw06
+-- contactsapi.contacts definition
 
-Кожна нова гілка для др повинна робитися з master
+CREATE TABLE `contacts` (
+`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+`name` varchar(40) NOT NULL,
+`email` varchar(50) NOT NULL,
+`phone` varchar(20) NOT NULL,
+`favorite` tinyint(1) NOT NULL DEFAULT 0,
+`owner` int(10) unsigned NOT NULL,
+PRIMARY KEY (`id`),
+KEY `contacts_FK` (`owner`),
+CONSTRAINT `contacts_FK` FOREIGN KEY (`owner`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-Після того, як ви закінчили виконувати домашнє завдання у своїй гілці, необхідно зробити пулл-реквест (PR). Потім додати ментора для рев'ю коду. Тільки після того, як ментор заапрувить PR, ви можете виконати мердж гілки з домашнім завданням у майстер.
+-- contactsapi.users definition
 
-Уважно читайте коментарі ментора. Виправте зауваження та зробіть коміт у гілці з домашнім завданням. Зміни підтягнуться у PR автоматично після того, як ви відправите коміт з виправленнями на github
-Після виправлення знову додайте ментора на рев'ю коду.
+CREATE TABLE `users` (
+`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+`password` varchar(100) NOT NULL,
+`email` varchar(50) NOT NULL,
+`subscription` enum('starter','pro','business') NOT NULL DEFAULT 'starter',
+`verify` tinyint(1) NOT NULL DEFAULT 0,
+`verificationToken` varchar(100) DEFAULT NULL,
+`avatarURL` varchar(200) DEFAULT NULL,
+`token` text DEFAULT NULL,
+PRIMARY KEY (`id`),
+UNIQUE KEY `users_un` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-- При здачі домашньої роботи є посилання на PR
-- JS-код чистий та зрозумілий, для форматування використовується Prettier
+## Or you can upload this BD from dump file in /BDdump folder
+
+## To start Contacts book API you need:
+
+1. start prokect on localhost:3000
+2. create/download contactsapi BD to your MariaBD
+3. create .env file with settings
+
+PORT=3000
+JWT_SECRET="........enter your key..........."
+SENDGRID_API_KEY='........enter your key...........'
+DEV_URL="http://localhost:3000"
+MARIA_DB_HOST= "..........."
+MARIA_DB_USER="..............."
+MARIA_DB_PASS="............."
+MARIA_DB_PORT=....
+MARIA_DB_DATABASE="contactsAPI"
 
 ### Команди:
 
