@@ -1,6 +1,7 @@
-## Contacts book API with possibility to add, delete, edit contacts.
+# Contacts book API with possibility to add, delete, edit contacts.
 
 This backend is based on MariaDB.
+I have the same project but on MongoDB: https://github.com/Olexii-US/nodejs-homework-contactsAPI
 
 ## Here is DB structure:
 
@@ -35,13 +36,17 @@ PRIMARY KEY (`id`),
 UNIQUE KEY `users_un` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-## Or you can upload this BD from dump file in /BDdump folder
+### Or you can upload this BD from dump file in /BDdump folder
 
-## To start Contacts book API you need:
+## Launching routing documentation on Swagger:
 
-1. start prokect on localhost:3000
+- http://localhost:3000/api/docs/
+
+## To start Contacts book API, you need:
+
+1. start project on localhost:3000
 2. create/download contactsapi BD to your MariaBD
-3. create .env file with settings
+3. create .env file with settings:
 
 PORT=3000
 JWT_SECRET="........enter your key..........."
@@ -53,9 +58,9 @@ MARIA_DB_PASS="............."
 MARIA_DB_PORT=....
 MARIA_DB_DATABASE="contactsAPI"
 
-### Команди:
+## Сommands:
 
-- `npm start` &mdash; старт сервера в режимі production
-- `npm run start:dev` &mdash; старт сервера в режимі розробки (development)
-- `npm run lint` &mdash; запустити виконання перевірки коду з eslint, необхідно виконувати перед кожним PR та виправляти всі помилки лінтера
-- `npm lint:fix` &mdash; та ж перевірка лінтера, але з автоматичними виправленнями простих помилок
+- `npm start` &mdash; server start in production mode
+- `npm run start:dev` &mdash; server start in development mode
+- `npm run lint` &mdash; run a code check run with eslint, must run before each PR and fix all linter errors
+- `npm lint:fix` &mdash; the same linter check, but with automatic fixes for simple errors
